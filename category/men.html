@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OOTD - 프리미엄 쇼핑</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/category_style.css}" href="/css/category_style.css">
+</head>
+<body>
+
+<header class="top-banner">
+    <div class="nav-left">
+        <a th:href="@{/}" class="logo">OOTD</a>
+        <span class="nav-item">HOME</span>
+        <span class="nav-item">MEN</span>
+        <span class="nav-item">WOMEN</span>
+        <span class="nav-item">SHOES</span>
+        <span class="nav-item">랭킹</span>
+    </div>
+    <div class="nav-right">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <span class="nav-item">AI피팅</span>
+        <i class="fa-regular fa-heart"></i>
+        <i class="fa-solid fa-cart-shopping"></i>
+        <i class="fa-regular fa-user"></i>
+        <span class="nav-item" style="font-size: 11px;">로그인 / 회원가입</span>
+    </div>
+</header>
+
+<nav class="category-nav">
+    <a th:href="@{/category/men}"><span>전체</span></a>
+    <a th:href="@{/category/men_top}"><span>상의</span></a>
+    <a th:href="@{/category/men_bottom}"><span>하의</span></a>
+    <a th:href="@{/category/men_outer}"><span>아우터</span></a>
+</nav>
+
+<div class="sticky-wrapper">
+    <div class="filter-bar">
+        <div class="filter-left">
+            <button class="filter-btn" onclick="toggleDropdown('gender-menu')">성별 ▾</button>
+            <button class="filter-btn" onclick="toggleDropdown('color-menu')">컬러 ▾</button>
+            <button class="filter-btn" onclick="toggleDropdown('price-menu')">가격 ▾</button>
+            <button class="filter-btn" onclick="toggleDropdown('brand-menu')">브랜드 ▾</button>
+        </div>
+        <div class="product-total">
+            <span id="product-count">0</span>개 상품
+        </div>
+    </div>
+
+    <div id="selected-chips" class="selected-filters"></div>
+
+    <div id="gender-menu" class="filter-dropdown">
+        <label><input type="checkbox" class="filter-check" data-name="남성" onchange="renderChips()"> 남성</label> &nbsp;
+        <label><input type="checkbox" class="filter-check" data-name="여성" onchange="renderChips()"> 여성</label>
+    </div>
+
+    <div id="color-menu" class="filter-dropdown">
+        <label><input type="checkbox" class="filter-check" data-name="블랙" onchange="renderChips()"> 블랙</label> &nbsp;
+        <label><input type="checkbox" class="filter-check" data-name="화이트" onchange="renderChips()"> 화이트</label>
+    </div>
+
+    <div id="price-menu" class="filter-dropdown">
+        <span id="price-display">0원 ~ 1,000,000원</span>
+        <input type="range" id="price-range" min="0" max="1000000" step="10000" value="1000000" oninput="updatePrice(this.value)">
+    </div>
+
+    <div id="brand-menu" class="filter-dropdown">
+        <input type="text" class="brand-search" placeholder="브랜드 검색...">
+        <label><input type="checkbox" class="filter-check" data-name="나이키" onchange="renderChips()"> 나이키</label><br>
+        <label><input type="checkbox" class="filter-check" data-name="아디다스" onchange="renderChips()"> 아디다스</label>
+    </div>
+</div>
+
+<main class="product-grid">
+    <div class="product-card" th:each="i : ${#numbers.sequence(1, 12)}">
+        <div class="product-img-wrapper">
+            <div class="product-img"></div>
+            <i class="fa-regular fa-heart wish-icon" onclick="toggleWish(this)"></i>
+        </div>
+        <div class="product-info">
+            <div class="brand">OOTD(BRAND)</div>
+            <div class="name">데일리 에센셜 오버핏 티셔츠</div>
+            <div class="price">39,000원</div>
+        </div>
+    </div>
+</main>
+
+<script th:src="@{/js/category_js.js}" src="/js/category_js.js"></script>
+</body>
+</html>
