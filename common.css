@@ -1,0 +1,99 @@
+@charset "UTF-8";
+
+/* ==================== 전역 기본 설정 ==================== */
+body { 
+    font-family: 'Inter', sans-serif; 
+}
+
+/* ==================== 헤더 (상단 배너) & 검색창 ==================== */
+
+/* 헤더 검색 영역 스크롤 트랜지션 */
+#header-search-row {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: top;
+    overflow: visible;
+}
+
+/* 숨김 상태 클래스 (스크롤 시 적용) */
+#header-search-row.hidden-row {
+    height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* 스티키 검색 아이콘 트랜지션 */
+#sticky-search-btn {
+    transition: all 0.3s ease;
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+
+#sticky-search-btn.visible {
+    width: 24px;
+    opacity: 1;
+}
+
+/* 검색창 컨테이너 */
+.search-container {
+    position: relative;
+    z-index: 50;
+    width: 100%;
+}
+
+/* 통합된 검색 박스 스타일 */
+.search-box {
+    background-color: #2a2b30;
+    border-radius: 20px;
+    overflow: hidden;
+    height: 40px;
+    transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* 검색창 포커스 시 확장 효과 */
+.group:focus-within .search-box {
+    height: 400px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.search-form-area {
+    height: 40px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.search-content-area {
+    padding: 10px 32px 32px 32px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    transition-delay: 0s;
+    visibility: hidden;
+}
+
+.group:focus-within .search-content-area {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0.1s;
+}
+
+/* 동적 로드 상품 페이드인 애니메이션 (검색 결과용) */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.5s ease-out forwards;
+}

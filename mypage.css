@@ -1,0 +1,20 @@
+@charset "UTF-8";
+
+/* ==================== 마이페이지(Dashboard) 전용 스타일 ==================== */
+
+/* 사이드바 네비게이션 링크 스타일 */
+/* Tailwind의 기본 스타일을 보조하여 클릭 영역을 확보 */
+.nav-link {
+    display: block;
+    width: 100%;
+    text-align: left;
+    /* 기본 색상 및 호버 효과는 Tailwind 클래스(text-gray-500, hover:text-gray-900)로 제어됨 */
+}
+
+/* 현재 활성화된 메뉴 표시 (HTML에서 active 클래스가 붙었을 때) */
+.nav-link.active {
+    color: #000;
+    font-weight: 700;
+}
+
+/* 필요 시 마이페이지 내부 카드나 그리드 관련 추가 스타일 작성 */

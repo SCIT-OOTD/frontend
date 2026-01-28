@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Page - OOTD</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Common CSS (공통) -->
+    <link rel="stylesheet" href="common.css" th:href="@{/css/common.css}">
+    
+    <!-- My Page Specific CSS (마이페이지 전용) -->
+    <link rel="stylesheet" href="mypage.css" th:href="@{/css/mypage.css}">
+</head>
+<body class="bg-white text-gray-900 min-h-screen flex flex-col">
+
+    <!-- ==================== 헤더 (오리지널 유지) ==================== -->
+    <header id="main-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-[#1a1b1f] text-white shadow-md">
+        <!-- 1단 -->
+        <div class="w-full border-b border-white/5 relative z-50 bg-[#1a1b1f]">
+            <div class="max-w-[1600px] mx-auto px-8 h-12 flex justify-between items-center">
+                <div class="flex items-center gap-12">
+                    <a href="/" class="text-xl font-black italic tracking-tighter hover:text-gray-300 transition-colors">OOTD.</a>
+                    <nav class="hidden md:flex gap-6 text-[10px] font-bold uppercase tracking-widest text-gray-300">
+                        <a href="#" class="hover:text-white transition-colors">Men</a>
+                        <a href="#" class="hover:text-white transition-colors">Women</a>
+                        <a href="#" class="hover:text-white transition-colors">Shoes</a>
+                        <a href="#" class="text-red-500 hover:text-red-400 transition-colors">Ranking</a>
+                    </nav>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button id="sticky-search-btn" onclick="openSearch()" class="text-gray-400 hover:text-white transition-colors cursor-pointer"><i data-lucide="search" width="18"></i></button>
+                    <div class="flex items-center gap-4 text-gray-400">
+                        <a th:href="@{/user/wishlist}" class="hover:text-white transition-colors relative group"><i data-lucide="heart" width="18"></i></a>
+                        <a th:href="@{/user/mypage}" class="text-white relative group"><i data-lucide="user" width="18"></i></a>
+                        <!-- 장바구니 아이콘 -->
+                        <a th:href="@{/cart}" class="hover:text-white transition-colors relative group">
+                            <i data-lucide="shopping-bag" width="18"></i>
+                        </a>
+                    </div>
+                    <div class="w-px h-2.5 bg-gray-700"></div>
+                    <a href="#" class="flex items-center gap-1 text-indigo-400 hover:text-indigo-300 font-bold text-[10px] transition-colors"><i data-lucide="sparkles" width="12"></i> AI 피팅</a>
+                    <button class="text-[10px] font-bold border border-gray-600 px-3 py-1 rounded-full hover:bg-white hover:text-black hover:border-white transition-all text-white">LOGOUT</button>
+                </div>
+            </div>
+        </div>
+        <!-- 2단 검색창 -->
+        <div id="header-search-row" class="w-full py-2 bg-[#1a1b1f] relative z-40 h-14">
+            <div class="max-w-4xl mx-auto px-6">
+                <div class="relative group search-container">
+                    <div class="search-box border border-gray-700/50">
+                        <div class="search-form-area">
+                            <i data-lucide="search" class="text-gray-400 w-4 h-4 mr-3 shrink-0"></i>
+                            <input type="text" id="main-search-input" class="w-full bg-transparent border-none text-xs text-white h-full focus:outline-none placeholder-gray-500" placeholder="브랜드, 상품, 프로필, 태그 등" autocomplete="off">
+                        </div>
+                        <div class="search-content-area">
+                            <div class="space-y-6">
+                                <div>
+                                    <span class="text-[10px] font-bold text-gray-500 mb-2 block uppercase tracking-wider">Recent Searches</span>
+                                    <div id="recent-search-list" class="flex flex-wrap gap-2 text-[11px] text-gray-300">
+                                        <th:block th:if="${not #lists.isEmpty(recentSearches)}">
+                                            <span th:each="keyword : ${recentSearches}" th:text="${keyword}" class="bg-black/40 px-3 py-1 rounded-full cursor-pointer hover:bg-black/60 transition-colors"></span>
+                                        </th:block>
+                                    </div>
+                                </div>
+                                <div class="border-t border-gray-700/50 pt-4">
+                                    <span class="text-[10px] font-bold text-gray-500 mb-2 block uppercase tracking-wider">Trending Now</span>
+                                    <ul id="trending-search-list" class="space-y-2 text-xs text-white font-medium">
+                                        <li th:each="trend, stat : ${trendingItems}" class="flex justify-between cursor-pointer hover:text-indigo-400 transition-colors py-1">
+                                            <span th:text="${stat.count} + '. ' + ${trend.keyword}"></span>
+                                            <span th:if="${trend.status == 'UP'}" class="text-red-500 text-[10px]">▲</span>
+                                            <span th:if="${trend.status == 'DOWN'}" class="text-blue-500 text-[10px]">▼</span>
+                                            <span th:if="${trend.status == 'SAME'}" class="text-gray-500 text-[10px]">-</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+        <!-- ==================== 컨텐츠 영역 ==================== -->
+    <!-- [수정] pb-20: 메인 컨텐츠 자체의 패딩은 적당히 복구 -->
+    <div class="pt-[140px] max-w-4xl mx-auto w-full px-6 py-12 relative flex min-h-[800px] pb-20">
+        
+        <!-- [LEFT] 사이드바 메뉴 래퍼 -->
+        <!-- [핵심 수정] h-full 삭제하고 bottom-64 적용 -->
+        <!-- 사이드바가 움직일 수 있는 트랙의 높이를 강제로 줄여서, 스크롤을 끝까지 내려도 사이드바는 푸터 위 256px 지점에서 멈춥니다. -->
+        <div class="absolute right-full top-20 bottom-20 hidden xl:block">
+            <aside class="sticky top-32 mr-8 w-[140px] select-none text-left">
+                <a th:href="@{/user/mypage}" class="cursor-pointer block text-2xl font-black mb-6 hover:opacity-70 transition-opacity">MY PAGE</a>
+                
+                <nav class="space-y-6">
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wide">Shopping Info</h3>
+                        <ul class="space-y-2 text-xs text-gray-500 font-medium">
+                            <li><a th:href="@{/user/orders}" class="nav-link hover:text-gray-900 transition-colors">구매 내역</a></li>
+                            <!-- [수정] 밑줄(underline) 제거하고 font-black만 유지 -->
+                            <li><a th:href="@{/user/wishlist}" href="wishlist.html" class="nav-link hover:text-gray-900 transition-colors">관심 상품</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wide">My Info</h3>
+                        <ul class="space-y-2 text-xs text-gray-500 font-medium">
+                            <li><a th:href="@{/user/check-password}" class="nav-link hover:text-gray-900 transition-colors">로그인 정보</a></li>
+                            <li><a th:href="@{/user/profile}" class="nav-link hover:text-gray-900 transition-colors">프로필 관리</a></li>
+                            <li><a th:href="@{/user/address}" class="nav-link hover:text-gray-900 transition-colors">주소록</a></li>
+                            <li><a th:href="@{/user/custom-info}" class="nav-link hover:text-gray-900 transition-colors">나의 맞춤정보</a></li>
+                        </ul>
+                    </div>
+                </nav>
+            </aside>
+        </div>
+
+
+
+        <!-- [RIGHT] 컨텐츠 영역 (대시보드 메인) -->
+        <main class="w-full flex-1 min-w-0">
+
+            <!-- 대시보드 (기본 뷰) -->
+            <div id="dashboard" class="block">
+                
+                <!-- 1. 프로필 요약 카드 -->
+                <div class="flex items-center justify-between border border-gray-200 rounded-2xl p-8 mb-10 bg-white shadow-sm">
+                    <div class="flex items-center gap-6">
+                        <div class="w-20 h-20 rounded-full bg-gray-100 overflow-hidden border border-gray-100">
+                            <!-- 프로필 이미지 백엔드 연동 -->
+                            <img th:src="${user != null && user.profileImage != null ? user.profileImage : 'https://via.placeholder.com/150'}" alt="Profile" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-1">
+                                <!-- 이름/닉네임 백엔드 연동 -->
+                                <span th:text="${user != null ? user.name : 'Guest'}">User Name</span> 
+                                <span class="text-xs font-normal text-gray-400 ml-1" th:text="${user != null ? user.grade : 'MEMBER'}">VIP</span>
+                            </h3>
+                            <p class="text-xs text-gray-400" th:text="${user != null ? user.email : 'user@example.com'}">user@example.com</p>
+                            <div class="mt-3">
+                                <a th:href="@{/user/profile}" class="inline-block px-3 py-1.5 border border-gray-200 rounded text-[10px] font-bold text-gray-600 hover:bg-gray-50 transition-colors">프로필 수정</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. 구매 내역 요약 (Order Summary) -->
+                <div class="mb-12">
+                    <div class="flex justify-between items-end mb-4">
+                        <h3 class="text-lg font-bold">구매 내역</h3>
+                        <a th:href="@{/user/orders}" class="text-xs text-gray-400 hover:text-black">더보기 <i data-lucide="chevron-right" width="10" class="inline"></i></a>
+                    </div>
+                    <div class="grid grid-cols-4 bg-gray-50 rounded-xl p-6 text-center">
+                        <div class="border-r border-gray-200">
+                            <p class="text-xs text-gray-500 mb-2">전체</p>
+                            <p class="text-lg font-bold text-gray-900" th:text="${orderSummary != null ? orderSummary.total : 0}">0</p>
+                        </div>
+                        <div class="border-r border-gray-200">
+                            <p class="text-xs text-gray-500 mb-2">입금 대기</p>
+                            <p class="text-lg font-bold text-red-500" th:text="${orderSummary != null ? orderSummary.pending : 0}">0</p>
+                        </div>
+                        <div class="border-r border-gray-200">
+                            <p class="text-xs text-gray-500 mb-2">배송 중</p>
+                            <p class="text-lg font-bold text-gray-900" th:text="${orderSummary != null ? orderSummary.shipping : 0}">0</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-2">배송 완료</p>
+                            <p class="text-lg font-bold text-gray-900" th:text="${orderSummary != null ? orderSummary.completed : 0}">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. 관심 상품 미리보기 (Wishlist Preview) -->
+                <div>
+                    <div class="flex justify-between items-end mb-4">
+                        <h3 class="text-lg font-bold">관심 상품</h3>
+                        <a th:href="@{/user/wishlist}" class="text-xs text-gray-400 hover:text-black flex items-center">더보기 <i data-lucide="chevron-right" width="10" class="ml-1"></i></a>
+                    </div>
+                    <div class="grid grid-cols-4 gap-4">
+                        <!-- 위시리스트 아이템 반복 -->
+                        <div class="group cursor-pointer relative" th:each="item : ${wishlistPreview}">
+                            <div class="relative rounded-lg overflow-hidden bg-gray-100 mb-2 aspect-square">
+                                <img th:src="${item.imageUrl}" class="w-full h-full object-cover">
+                                <!-- 삭제 버튼: mypage.js의 removeWish() 함수 호출 -->
+                                <button th:onclick="|removeWish(event, '${item.id}')|" class="absolute bottom-2 right-2 bg-white/80 p-1.5 rounded-full hover:bg-white transition-colors shadow-sm">
+                                    <i data-lucide="heart" width="16" class="fill-red-500 text-red-500"></i>
+                                </button>
+                            </div>
+                            <p class="text-[10px] font-bold text-gray-900 underline mb-0.5" th:text="${item.brand}">Brand</p>
+                            <p class="text-xs text-gray-500 truncate" th:text="${item.name}">Product Name</p>
+                        </div>
+                        
+                        <!-- 데이터 없을 때 -->
+                        <div th:if="${wishlistPreview == null || #lists.isEmpty(wishlistPreview)}" class="col-span-4 text-center py-10 text-xs text-gray-400 bg-gray-50 rounded-lg">
+                            관심 상품이 없습니다.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 공통 푸터 -->
+    <footer class="bg-[#1a1b1f] text-gray-400 py-16 text-xs mt-auto">
+        <div class="max-w-[1600px] mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
+            <div>
+                <h4 class="text-white text-xl font-black italic mb-4">OOTD.</h4>
+                <p class="leading-relaxed opacity-70">Fashion meets AI.<br>New shopping experience.</p>
+            </div>
+            <div>
+                <h5 class="text-white font-bold mb-4">SHOP</h5>
+                <ul class="space-y-2 opacity-70">
+                    <li><a href="#" class="hover:text-white">Men</a></li>
+                    <li><a href="#" class="hover:text-white">Women</a></li>
+                    <li><a href="#" class="hover:text-white">Shoes</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="text-white font-bold mb-4">HELP</h5>
+                <ul class="space-y-2 opacity-70">
+                    <li><a href="#">Customer Service</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="text-white font-bold mb-4">NEWSLETTER</h5>
+                <p class="mb-4 opacity-70">뉴스레터를 구독하고 할인 정보를 받아보세요.</p>
+            </div>
+        </div>
+        <div class="max-w-[1600px] mx-auto px-6 mt-12 pt-8 border-t border-gray-800 flex justify-between">
+            <p>© 2024 OOTD Corp.</p>
+        </div>
+    </footer>
+
+    <!-- Common JS (공통) -->
+    <script src="common.js" th:src="@{/js/common.js}"></script>
+
+    <!-- Page Specific JS (마이페이지 전용) -->
+    <script src="mypage.js" th:src="@{/js/mypage.js}"></script>
+</body>
+</html>

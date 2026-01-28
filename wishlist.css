@@ -1,0 +1,31 @@
+@charset "UTF-8";
+
+/* 상품 카드 이미지 호버 시 확대 효과 */
+.product-card:hover .product-img {
+    transform: scale(1.05);
+}
+
+.product-img {
+    transition: transform 0.3s ease;
+}
+
+/* 장바구니 담기 버튼 (호버 시 등장) */
+.cart-btn-overlay {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    transform: translateY(10px);
+}
+
+.product-card:hover .cart-btn-overlay {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 카테고리 탭 버튼 스크롤바 숨기기 */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
