@@ -1,0 +1,14 @@
+/* 좌측 메뉴 활성화 스타일 */
+        .nav-link.active {
+            color: #000;
+            font-weight: 900;
+        }
+        /* 버튼 호버 효과 */
+        .btn-outline-gray {
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s;
+        }
+        .btn-outline-gray:hover {
+            border-color: #000;
+            color: #000;
+        }
