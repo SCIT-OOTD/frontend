@@ -1,0 +1,31 @@
+ .nav-link.active {
+            color: #000;
+            font-weight: 900;
+        }
+        .btn-outline-gray {
+            border: 1px solid #e5e7eb;
+            background-color: white;
+            transition: all 0.2s;
+        }
+        .btn-outline-gray:hover {
+            border-color: #000;
+            color: #000;
+        }
+        .btn-black {
+            background-color: black;
+            color: white;
+            transition: all 0.2s;
+        }
+        .btn-black:hover {
+            background-color: #333;
+        }
+        /* 모달 스타일 */
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        .modal-content {
+            transition: transform 0.25s ease;
+        }
+        body.modal-open {
+            overflow: hidden;
+        }

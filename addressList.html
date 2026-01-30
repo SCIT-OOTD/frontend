@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Address Book - OOTD</title>
+    
+    <!-- [Spring Security] CSRF Token 설정 -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="common.css" th:href="@{/css/common.css}">
+    <link rel="stylesheet" href="addressList.css" th:href="@{/css/addressList.css}">
+    
+    <!-- Daum Postcode Service -->
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+   
+</head>
+<body class="bg-white text-gray-900 min-h-screen flex flex-col">
+
+    <!-- ==================== 헤더 (공통) ==================== -->
+    <header id="main-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-[#1a1b1f] text-white shadow-md">
+        <div class="w-full border-b border-white/5 relative z-50 bg-[#1a1b1f]">
+            <div class="max-w-[1600px] mx-auto px-8 h-12 flex justify-between items-center">
+                <div class="flex items-center gap-12">
+                    <a th:href="@{/}" href="home.html" class="text-xl font-black italic tracking-tighter hover:text-gray-300 transition-colors">OOTD.</a>
+                    <nav class="hidden md:flex gap-6 text-[10px] font-bold uppercase tracking-widest text-gray-300">
+                        <a th:href="@{/products/men}" href="#" class="hover:text-white transition-colors">Men</a>
+                        <a th:href="@{/products/women}" href="#" class="hover:text-white transition-colors">Women</a>
+                        <a th:href="@{/products/shoes}" href="#" class="hover:text-white transition-colors">Shoes</a>
+                        <a th:href="@{/ranking}" href="#" class="text-red-500 hover:text-red-400 transition-colors">Ranking</a>
+                    </nav>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button id="sticky-search-btn" onclick="openSearch()" class="text-gray-400 hover:text-white transition-colors cursor-pointer"><i data-lucide="search" width="18"></i></button>
+                    <div class="flex items-center gap-4 text-gray-400">
+                        <a th:href="@{/user/wishlist}" href="wishlist.html" class="hover:text-white text-gray-400 transition-colors relative group"><i data-lucide="heart" width="18"></i></a>
+                        <a th:href="@{/user/mypage}" href="mypage.html" class="text-white transition-colors relative group"><i data-lucide="user" width="18"></i></a>
+                        <a th:href="@{/cart}" href="cart.html" class="hover:text-white text-gray-400 transition-colors relative group">
+                            <i data-lucide="shopping-bag" width="18"></i>
+                            <span id="cart-count" class="absolute -top-1 -right-1 w-3 h-3 bg-red-600 text-white text-[8px] flex items-center justify-center rounded-full font-bold">0</span>
+                        </a>
+                    </div>
+                    <div class="w-px h-2.5 bg-gray-700"></div>
+                    <a th:href="@{/ai/fitting}" href="#" class="flex items-center gap-1 text-indigo-400 hover:text-indigo-300 font-bold text-[10px] transition-colors whitespace-nowrap"><i data-lucide="sparkles" width="12"></i> AI 피팅</a>
+                    
+                    <div sec:authorize="isAuthenticated()">
+                        <form th:action="@{/logout}" method="post" class="inline">
+                            <button type="submit" class="text-[10px] font-bold border border-gray-600 px-3 py-1 rounded-full hover:bg-white hover:text-black hover:border-white transition-all text-white">LOGOUT</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 검색창 (공통) -->
+        <div id="header-search-row" class="w-full py-2 bg-[#1a1b1f] relative z-40 h-14">
+            <div class="max-w-4xl mx-auto px-6">
+                <div class="relative group search-container">
+                    <div class="search-box border border-gray-700/50">
+                        <div class="search-form-area">
+                            <form th:action="@{/search}" method="get" class="w-full flex items-center h-full">
+                                <i data-lucide="search" class="text-gray-400 w-4 h-4 mr-3 shrink-0"></i>
+                                <input type="text" id="main-search-input" name="keyword" class="w-full bg-transparent border-none text-xs text-white h-full focus:outline-none placeholder-gray-500" placeholder="브랜드, 상품, 프로필, 태그 등" autocomplete="off">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== 컨텐츠 영역 ==================== -->
+    <div class="pt-[140px] max-w-4xl mx-auto w-full px-6 py-12 relative flex min-h-[800px] pb-20">
+        
+        <!-- [LEFT] 사이드바 메뉴 -->
+        <div class="absolute right-full top-0 bottom-64 hidden xl:block">
+            <aside class="sticky top-32 mr-6 w-[140px] select-none text-left">
+                <a th:href="@{/user/mypage}" href="mypage.html" class="cursor-pointer block text-2xl font-black mb-6 hover:opacity-70 transition-opacity">MY PAGE</a>
+                
+                <nav class="space-y-6">
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wide">Shopping Info</h3>
+                        <ul class="space-y-2 text-xs text-gray-500 font-medium">
+                            <li><a th:href="@{/user/orders}" href="orderlist.html" class="nav-link hover:text-gray-900 transition-colors">구매 내역</a></li>
+                            <li><a th:href="@{/user/wishlist}" href="wishlist.html" class="nav-link hover:text-gray-900 transition-colors">관심 상품</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wide">My Info</h3>
+                        <ul class="space-y-2 text-xs text-gray-500 font-medium">
+                            <li><a th:href="@{/user/check-password}" href="loginInfo.html" class="nav-link hover:text-gray-900 transition-colors">로그인 정보</a></li>
+                            <li><a th:href="@{/user/profile}" href="profile.html" class="nav-link hover:text-gray-900 transition-colors">프로필 관리</a></li>
+                            <!-- [Active] 주소록 -->
+                            <li><a th:href="@{/user/address}" href="addressList.html" class="nav-link active text-black font-black hover:text-gray-900 transition-colors">주소록</a></li>
+                            <li><a th:href="@{/user/custom-info}" class="nav-link hover:text-gray-900 transition-colors">나의 맞춤정보</a></li>
+                        </ul>
+                    </div>
+                </nav>
+            </aside>
+        </div>
+
+        <!-- [RIGHT] 메인 컨텐츠 -->
+        <main class="w-full flex-1 min-w-0">
+            
+            <div class="flex justify-between items-end mb-8">
+                <h2 class="text-2xl font-bold">주소록</h2>
+                <!-- 새 배송지 추가 버튼 -->
+                <button onclick="openAddressModal()" class="btn-outline-gray px-4 py-2 text-xs rounded font-medium text-gray-500 hover:text-black hover:border-black transition-colors flex items-center gap-1">
+                    <i data-lucide="plus" width="14" height="14"></i> 새 배송지 추가
+                </button>
+            </div>
+
+            <!-- 1. 기본 배송지 섹션 -->
+            <div class="mb-12">
+                <h3 class="text-sm font-bold text-gray-900 mb-3">기본 배송지</h3>
+                
+                <!-- 기본 배송지가 있는 경우 -->
+                <div th:if="${defaultAddress != null}" class="w-full bg-white border border-gray-200 rounded-[20px] p-6 shadow-sm flex justify-between items-center">
+                    <div class="flex-1 pr-6">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-base font-bold text-gray-900" th:text="${defaultAddress.recipient}"></span>
+                            <span class="bg-gray-100 text-[10px] text-gray-500 px-1.5 py-0.5 rounded font-bold tracking-tighter">기본 배송지</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-1" th:text="${defaultAddress.phone}"></p>
+                        <p class="text-sm text-gray-500">
+                            <span th:text="'(' + ${defaultAddress.zipcode} + ')'"></span>
+                            <span th:text="${defaultAddress.address} + ' ' + ${defaultAddress.detailAddress}"></span>
+                        </p>
+                    </div>
+                    <div class="flex gap-2 shrink-0">
+                        <button th:onclick="|editAddress(${defaultAddress.id})|" class="btn-outline-gray px-3 py-1.5 text-xs rounded font-medium text-gray-500 whitespace-nowrap">수정</button>
+                    </div>
+                </div>
+
+                <!-- 기본 배송지가 없는 경우 -->
+                <div th:unless="${defaultAddress != null}" class="w-full py-8 text-center bg-gray-50 rounded-[20px] border border-gray-100">
+                    <p class="text-xs text-gray-400">설정된 기본 배송지가 없습니다.</p>
+                </div>
+            </div>
+
+            <!-- 2. 저장된 주소 (그 외 배송지) 섹션 -->
+            <div>
+                <h3 class="text-sm font-bold text-gray-900 mb-3" th:text="'저장된 주소 (' + ${#lists.size(addressList)} + ')'"></h3>
+                
+                <div th:if="${not #lists.isEmpty(addressList)}" class="space-y-3">
+                    <!-- 주소 리스트 반복 -->
+                    <div th:each="addr : ${addressList}" class="w-full bg-white border border-gray-200 rounded-[20px] p-6 shadow-sm flex justify-between items-center group hover:border-gray-400 transition-colors">
+                        <div class="flex-1 pr-6">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-base font-bold text-gray-900" th:text="${addr.recipient}"></span>
+                            </div>
+                            <p class="text-sm text-gray-500 mb-1" th:text="${addr.phone}"></p>
+                            <p class="text-sm text-gray-500">
+                                <span th:text="'(' + ${addr.zipcode} + ')'"></span>
+                                <span th:text="${addr.address} + ' ' + ${addr.detailAddress}"></span>
+                            </p>
+                        </div>
+                        <div class="flex gap-2 shrink-0">
+                            <button th:onclick="|setDefaultAddress(${addr.id})|" class="btn-outline-gray px-3 py-1.5 text-xs rounded font-medium text-gray-500 whitespace-nowrap">기본 배송지</button>
+                            <button th:onclick="|editAddress(${addr.id})|" class="btn-outline-gray px-3 py-1.5 text-xs rounded font-medium text-gray-500 whitespace-nowrap">수정</button>
+                            <button th:onclick="|deleteAddress(${addr.id})|" class="btn-outline-gray px-3 py-1.5 text-xs rounded font-medium text-gray-500 whitespace-nowrap hover:text-red-500 hover:border-red-500">삭제</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 저장된 주소가 없을 경우 -->
+                <div th:if="${#lists.isEmpty(addressList)}" class="w-full py-16 text-center border-t border-gray-100 mt-4">
+                    <p class="text-xs text-gray-400">추가로 저장된 배송지가 없습니다.</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- [주소 추가/수정 모달] -->
+    <div id="address-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 backdrop-blur-sm modal opacity-0">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl modal-content transform scale-95 p-8 relative">
+            <h3 id="modal-title" class="text-xl font-bold mb-6 text-gray-900 text-center">새 배송지 추가</h3>
+            
+            <form id="address-form" onsubmit="saveAddress(event)">
+                <input type="hidden" id="addr-id" name="id">
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-2">받는 분</label>
+                        <input type="text" id="recipient" name="recipient" placeholder="이름을 입력해주세요" required
+                               class="w-full pb-2 bg-transparent border-b border-gray-200 text-sm focus:outline-none focus:border-black transition-colors rounded-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-2">연락처</label>
+                        <input type="tel" id="phone" name="phone" placeholder="예: 01012345678" required
+                               class="w-full pb-2 bg-transparent border-b border-gray-200 text-sm focus:outline-none focus:border-black transition-colors rounded-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-2">주소</label>
+                        <div class="flex gap-2 items-end mb-2">
+                            <input type="text" id="zipcode" name="zipcode" placeholder="우편번호" readonly
+                                   class="flex-1 pb-2 bg-transparent border-b border-gray-200 text-sm text-gray-500 focus:outline-none rounded-none cursor-default">
+                            <button type="button" onclick="execDaumPostcode()" class="btn-outline-gray px-3 py-1.5 text-xs rounded font-bold whitespace-nowrap shrink-0">주소 검색</button>
+                        </div>
+                        <input type="text" id="address" name="address" placeholder="기본 주소" readonly
+                               class="w-full pb-2 bg-transparent border-b border-gray-200 text-sm text-gray-500 focus:outline-none rounded-none cursor-default mb-2">
+                        <input type="text" id="detailAddress" name="detailAddress" placeholder="상세 주소를 입력해주세요"
+                               class="w-full pb-2 bg-transparent border-b border-gray-200 text-sm focus:outline-none focus:border-black transition-colors rounded-none">
+                    </div>
+
+                    <div class="flex items-center gap-2 pt-2">
+                        <input type="checkbox" id="isDefault" name="isDefault" class="w-4 h-4 rounded border-gray-300 text-black focus:ring-black">
+                        <label for="isDefault" class="text-xs text-gray-600 cursor-pointer select-none">기본 배송지로 설정</label>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 mt-8">
+                    <button type="button" onclick="closeAddressModal()" class="btn-outline-gray px-6 py-3 text-xs rounded font-bold text-gray-500 hover:text-black">취소</button>
+                    <button type="submit" class="bg-black text-white px-8 py-3 text-xs font-bold rounded hover:bg-gray-800 transition-colors">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 공통 푸터 -->
+    <footer class="bg-[#1a1b1f] text-gray-400 py-16 text-xs mt-auto">
+        <div class="max-w-[1600px] mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
+            <div>
+                <h4 class="text-white text-xl font-black italic mb-4">OOTD.</h4>
+                <p class="leading-relaxed opacity-70">Fashion meets AI.<br>New shopping experience.</p>
+            </div>
+            <div>
+                <h5 class="text-white font-bold mb-4">SHOP</h5>
+                <ul class="space-y-2 opacity-70">
+                    <li><a href="#" class="hover:text-white">Men</a></li>
+                    <li><a href="#" class="hover:text-white">Women</a></li>
+                    <li><a href="#" class="hover:text-white">Shoes</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="text-white font-bold mb-4">HELP</h5>
+                <ul class="space-y-2 opacity-70">
+                    <li><a href="#">Customer Service</a></li>
+                    <li><a href="#">Delivery & Returns</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="text-white font-bold mb-4">SUBSCRIBE</h5>
+                <p class="mb-4 opacity-70">뉴스레터를 구독하고 할인 정보를 받아보세요.</p>
+            </div>
+        </div>
+        <div class="max-w-[1600px] mx-auto px-6 mt-12 pt-8 border-t border-gray-800 flex justify-between">
+            <p>© 2024 OOTD Corp.</p>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="common.js" th:src="@{/js/common.js}"></script>
+    <script src="addressList.js" th:src="@{/js/addressList.js}"></script>
+
+</body>
+</html>
