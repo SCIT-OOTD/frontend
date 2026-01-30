@@ -1,0 +1,17 @@
+@charset "UTF-8";
+
+/* 구매 내역 아이템 호버 효과 */
+.group:hover img {
+    transform: scale(1.05);
+}
+
+.group img {
+    transition: transform 0.3s ease;
+}
+
+/* 필터 버튼 활성화 상태 (js로 제어 가능하도록 준비) */
+.filter-btn.active {
+    background-color: #000;
+    color: #fff;
+    border-color: #000;
+}

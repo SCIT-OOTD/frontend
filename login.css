@@ -1,0 +1,22 @@
+ /* 로그인 버튼 스타일 (JS로 제어) */
+        .btn-disabled {
+            background-color: #ebebeb;
+            color: #bcbcbc;
+            cursor: default;
+        }
+        .btn-active {
+            background-color: #222;
+            color: #fff;
+            cursor: pointer;
+        }
+        .btn-active:hover {
+            background-color: #000;
+        }
+        
+        /* 입력창 포커스 시 애니메이션 */
+        .input-underline {
+            transition: border-color 0.2s ease;
+        }
+        .input-underline:focus {
+            border-bottom-color: #000;
+        }

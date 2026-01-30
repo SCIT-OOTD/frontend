@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - OOTD</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="common.css" th:href="@{/css/common.css}">
+    <!-- Sign Up Specific CSS -->
+    <link rel="stylesheet" href="signUp.css" th:href="@{/css/signUp.css}">
+
+</head>
+<body class="bg-white text-gray-900 min-h-screen flex flex-col">
+
+    <!-- ==================== 헤더 ==================== -->
+    <header id="main-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-[#1a1b1f] text-white shadow-md">
+        
+        <div class="w-full border-b border-white/5 relative z-50 bg-[#1a1b1f]">
+            <div class="max-w-[1600px] mx-auto px-8 h-12 flex justify-between items-center">
+                
+                <div class="flex items-center gap-12">
+                    <a th:href="@{/}" href="home.html" class="text-xl font-black italic tracking-tighter hover:text-gray-300 transition-colors">
+                        OOTD.
+                    </a>
+                    <nav class="hidden md:flex gap-6 text-[10px] font-bold uppercase tracking-widest text-gray-300">
+                        <a th:href="@{/products/men}" href="#" class="hover:text-white transition-colors">Men</a>
+                        <a th:href="@{/products/women}" href="#" class="hover:text-white transition-colors">Women</a>
+                        <a th:href="@{/products/shoes}" href="#" class="hover:text-white transition-colors">Shoes</a>
+                        <a th:href="@{/ranking}" href="#" class="text-red-500 hover:text-red-400 transition-colors">Ranking</a>
+                    </nav>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button id="sticky-search-btn" onclick="openSearch()" class="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                        <i data-lucide="search" width="18" height="18"></i>
+                    </button>
+
+                    <div class="flex items-center gap-4 text-gray-400">
+                        <a th:href="@{/user/wishlist}" href="wishlist.html" class="hover:text-white transition-colors relative group">
+                            <i data-lucide="heart" width="18" height="18"></i>
+                        </a>
+                        <a th:href="@{/user/mypage}" href="mypage_dashboard.html" class="hover:text-white transition-colors relative group">
+                            <i data-lucide="user" width="18" height="18"></i>
+                        </a>
+                        <a th:href="@{/cart}" href="cart.html" class="hover:text-white transition-colors relative group">
+                            <i data-lucide="shopping-bag" width="18" height="18"></i>
+                            <span id="cart-count" class="absolute -top-1 -right-1 w-3 h-3 bg-red-600 text-white text-[8px] flex items-center justify-center rounded-full font-bold">0</span>
+                        </a>
+                    </div>
+                    <div class="w-px h-2.5 bg-gray-700"></div>
+                    <a th:href="@{/ai/fitting}" href="#" class="flex items-center gap-1 text-indigo-400 hover:text-indigo-300 font-bold text-[10px] transition-colors whitespace-nowrap">
+                        <i data-lucide="sparkles" width="12" height="12"></i>
+                        AI 피팅
+                    </a>
+                    
+                    <div id="auth-login" sec:authorize="isAnonymous()">
+                        <a th:href="@{/user/login}" href="login.html" class="text-[10px] font-bold border border-gray-600 px-3 py-1 rounded-full hover:bg-white hover:text-black hover:border-white transition-all flex items-center gap-1 whitespace-nowrap text-white">
+                            로그인/회원가입
+                        </a>
+                    </div>
+                    <div id="auth-logout" sec:authorize="isAuthenticated()">
+                        <form th:action="@{/logout}" method="post" class="inline">
+                            <button type="submit" class="text-[10px] font-bold border border-gray-600 px-3 py-1 rounded-full hover:bg-white hover:text-black hover:border-white transition-all flex items-center gap-1 whitespace-nowrap text-white">
+                                로그아웃
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="header-search-row" class="w-full py-2 bg-[#1a1b1f] relative z-40 h-14">
+            <div class="max-w-4xl mx-auto px-6">
+                <div class="relative group search-container">
+                    <div class="search-box border border-gray-700/50">
+                        <div class="search-form-area">
+                            <form th:action="@{/search}" method="get" class="w-full flex items-center h-full">
+                                <i data-lucide="search" class="text-gray-400 w-4 h-4 mr-3 shrink-0"></i>
+                                <input type="text" id="main-search-input" name="keyword" placeholder="찾고 싶은 스타일, 브랜드, 상품을 검색해보세요." autocomplete="off"
+                                       class="w-full bg-transparent border-none text-xs text-white h-full focus:outline-none focus:ring-0 placeholder-gray-500">
+                            </form>
+                        </div>
+                        <div class="search-content-area">
+                            <!-- 검색 내용 생략 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== 회원가입 컨텐츠 ==================== -->
+    <main class="pt-[140px] flex-grow flex flex-col items-center px-4 pb-20">
+        
+        <div class="w-full max-w-[400px]">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-black italic tracking-tighter mb-2 text-gray-900">JOIN MEMBER</h2>
+                <p class="text-[10px] font-bold text-gray-400 tracking-[0.1em] uppercase">회원가입하고 OOTD의 서비스를 이용해보세요.</p>
+            </div>
+
+            <!-- 회원가입 폼 -->
+            <form th:action="@{/user/signUp}" method="post" id="signUpForm">
+                
+                <!-- 1. 아이디 -->
+                <div>
+                    <label for="userId" class="block text-xs font-bold text-gray-900 mb-2">아이디 <span class="text-red-500">*</span></label>
+                    <div class="flex gap-2 items-end">
+                        <div class="flex-grow">
+                            <input type="text" name="userId" id="userId" placeholder="영문 소문자/숫자 5~10자" required
+                                   class="input-underline w-full pb-2 bg-transparent border-b border-gray-200 text-sm focus:outline-none placeholder-gray-300 rounded-none transition-colors">
+                        </div>
+                        <button type="button" id="btnIdCheck" class="btn-outline px-3 h-8 text-[11px] font-bold rounded hover:border-black hover:text-black transition-colors mb-1 whitespace-nowrap shrink-0">중복확인</button>
+                    </div>
+                    <div id="idCheckMsg" class="msg-box"></div>
+                </div>
+
+                <!-- 2. 비밀번호 -->
+                <div>
+                    <label for="password" class="block text-xs font-bold text-gray-900 mb-2">비밀번호 <span class="text-red-500">*</span></label>
+                    <input type="password" name="password" id="password" placeholder="영문, 숫자, 특수문자 조합 8-16자" required
+                           class="input-underline w-full pb-2 bg-transparent border-b border-gray-200 text-sm focus:outline-none placeholder-gray-300 rounded-none transition-colors">
+                </div>
+
+                <!-- 3. 비밀번호 확인 -->
+                <div>
+                    <label for="passwordCheck" class="block text-xs font-bold text-gray-900 mb-2">비밀번호 확인 <span class="text-red-500">*</span></label>
+                    <input type="password" name="passwordCheck" id="passwordCheck" placeholder="비밀번호를 한번 더 입력해주세요" required
+                           class="input-underline w-full pb-2 bg-transparent border-b border-gray-200 text-sm focus:outline-none placeholder-gray-300 rounded-none transition-colors">
+                    <div id="pwdMsg" class="msg-box"></div>
+                </div>
+                
+                <!-- 4. 이름 -->
+                <div>
+                    <label for="userName" class="block text-xs font-bold text-gray-900 mb-2">이름 <span class="text-red-500">*</span></label>
+                    <input type="text" name="userName" id="userName" placeholder="이름을 입력해주세요" required
+                           class="input-underline w-full pb-2 bg-transparent border-b border-gray-200 text-sm focus:outline-none placeholder-gray-300 rounded-none transition-colors">
+                </div>
+
+                <!-- 5. 이메일 -->
+                <div>
+                    <label for="email" class="block text-xs font-bold text-gray-900 mb-2">이메일 <span class="text-red-500">*</span></label>
+                    <div class="flex items-end gap-2">
+                        <div class="flex-grow flex items-center gap-2">
+                            <input type="text" name="email" id="email" placeholder="이메일 앞자리" required
+                                   class="input-underline w-full pb-2 bg-transparent border-b border-gray-200 text-sm focus:outline-none placeholder-gray-300 rounded-none text-center">
+                            <span class="text-sm text-gray-400 pb-2">@</span>
+                            <select name="emailDomain" id="emailDomain" class="w-full pb-2 bg-transparent border-b border-gray-200 text-sm focus:outline-none focus:border-black rounded-none cursor-pointer">
+                                <option value="">선택하기</option>
+                                <option value="gmail.com">gmail.com</option>
+                                <option value="naver.com">naver.com</option>
+                                <option value="daum.net">daum.net</option>
+                            </select>
+                        </div>
+                        <button type="button" id="btnEmailCheck" class="btn-outline px-3 h-8 text-[11px] font-bold rounded hover:border-black hover:text-black transition-colors mb-1 whitespace-nowrap shrink-0">중복확인</button>
+                    </div>
+                    <div id="emailMsg" class="msg-box"></div>
+                </div>
+
+                <!-- 6. 생년월일 -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-900 mb-2">생년월일</label>
+                    <div class="flex gap-3">
+                        <select name="birthYear" id="birthYear" class="w-full pb-2 bg-transparent border-b border-gray-200 text-sm focus:outline-none rounded-none cursor-pointer"><option value="">년</option></select>
+                        <select name="birthMonth" id="birthMonth" class="w-full pb-2 bg-transparent border-b border-gray-200 text-sm focus:outline-none rounded-none cursor-pointer"><option value="">월</option></select>
+                        <select name="birthDay" id="birthDay" class="w-full pb-2 bg-transparent border-b border-gray-200 text-sm focus:outline-none rounded-none cursor-pointer"><option value="">일</option></select>
+                    </div>
+                </div>
+
+                <!-- 7. 주소 (수정된 부분) -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-900 mb-2">주소</label>
+                    <div class="flex flex-col gap-3">
+                        <div class="flex gap-2 items-end">
+                            <!-- w-full을 flex-grow로 변경하여 버튼 공간 확보 -->
+                            <input type="text" id="zipcode" name="zipcode" placeholder="우편번호" readonly
+                                   class="input-underline flex-grow pb-2 bg-transparent border-b border-gray-200 text-sm text-gray-500 focus:outline-none rounded-none">
+                            <!-- whitespace-nowrap(줄바꿈 방지)과 shrink-0(찌그러짐 방지) 추가 -->
+                            <button type="button" id="btnPostCode" onclick="execDaumPostcode()" class="btn-outline px-3 h-8 text-[11px] font-bold rounded hover:border-black hover:text-black transition-colors mb-1 whitespace-nowrap shrink-0">주소검색</button>
+                        </div>
+                        <input type="text" id="address" name="address" placeholder="기본 주소" readonly
+                               class="input-underline w-full pb-2 bg-transparent border-b border-gray-200 text-sm text-gray-500 focus:outline-none rounded-none">
+                        <input type="text" id="addressDetail" name="addressDetail" placeholder="상세 주소를 입력해주세요"
+                               class="input-underline w-full pb-2 bg-transparent border-b border-gray-200 text-sm focus:outline-none rounded-none transition-colors">
+                    </div>
+                </div>
+
+                <!-- 8. 약관 동의 -->
+                <div class="pt-6 border-t border-gray-100">
+                    <div class="flex items-center gap-2 mb-4">
+                        <input type="checkbox" id="check-all" class="checkbox-custom">
+                        <label for="check-all" class="text-sm font-bold cursor-pointer select-none">모두 동의합니다</label>
+                    </div>
+                    <div class="space-y-3 pl-1">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="check-1" class="checkbox-custom sub-check" required>
+                                <label for="check-1" class="text-xs text-gray-500 cursor-pointer select-none">[필수] 만 14세 이상입니다</label>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="check-2" class="checkbox-custom sub-check" required>
+                                <label for="check-2" class="text-xs text-gray-500 cursor-pointer select-none">[필수] 이용약관 동의</label>
+                            </div>
+                            <button type="button" onclick="openTermsModal('terms')" class="text-[10px] text-gray-400 underline hover:text-black">자세히</button>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="check-3" class="checkbox-custom sub-check" required>
+                                <label for="check-3" class="text-xs text-gray-500 cursor-pointer select-none">[필수] 개인정보 수집 및 이용 동의</label>
+                            </div>
+                            <button type="button" onclick="openTermsModal('privacy')" class="text-[10px] text-gray-400 underline hover:text-black">자세히</button>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="check-4" class="checkbox-custom sub-check">
+                                <label for="check-4" class="text-xs text-gray-500 cursor-pointer select-none">[선택] 마케팅 정보 수신 동의</label>
+                            </div>
+                            <button type="button" onclick="openTermsModal('marketing')" class="text-[10px] text-gray-400 underline hover:text-black">자세히</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 가입하기 버튼 -->
+                <button type="submit" id="join-btn" disabled
+                        class="w-full btn-disabled py-4 rounded-lg font-bold text-sm mt-8 shadow-sm transition-all">
+                    가입하기
+                </button>
+
+            </form>
+        </div>
+
+    </main>
+
+    <!-- [약관 모달] -->
+    <div id="terms-modal" class="fixed inset-0 bg-black/60 z-[100] hidden items-center justify-center backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <div class="w-full max-w-4xl px-6 transform scale-95 transition-transform duration-300">
+            <div class="bg-white w-full rounded-2xl shadow-2xl flex flex-col max-h-[80vh]">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <h3 id="terms-title" class="text-xl font-black text-gray-900">약관 내용</h3>
+                    <button onclick="closeTermsModal()" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <i data-lucide="x" class="w-6 h-6 text-gray-500"></i>
+                    </button>
+                </div>
+                <div id="terms-content" class="p-8 overflow-y-auto text-sm text-gray-600 leading-relaxed whitespace-pre-wrap h-[400px]"></div>
+                <div class="p-6 border-t border-gray-100 text-right">
+                    <button onclick="closeTermsModal()" class="px-6 py-2.5 bg-black text-white text-xs font-bold rounded hover:bg-gray-800 transition-colors">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 공통 푸터 -->
+    <footer class="bg-[#1a1b1f] text-gray-400 py-16 text-xs mt-auto">
+        <div class="max-w-[1600px] mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
+            <div>
+                <h4 class="text-white text-xl font-black italic mb-4">OOTD.</h4>
+                <p class="leading-relaxed opacity-70">Fashion meets AI.<br>New shopping experience.</p>
+            </div>
+            <div>
+                <h5 class="text-white font-bold mb-4">SHOP</h5>
+                <ul class="space-y-2 opacity-70">
+                    <li><a href="#" class="hover:text-white">Men</a></li>
+                    <li><a href="#" class="hover:text-white">Women</a></li>
+                    <li><a href="#" class="hover:text-white">Shoes</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="text-white font-bold mb-4">HELP</h5>
+                <ul class="space-y-2 opacity-70">
+                    <li><a href="#">Customer Service</a></li>
+                    <li><a href="#">Delivery & Returns</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="text-white font-bold mb-4">SUBSCRIBE</h5>
+                <p class="mb-4 opacity-70">뉴스레터를 구독하고 할인 정보를 받아보세요.</p>
+            </div>
+        </div>
+        <div class="max-w-[1600px] mx-auto px-6 mt-12 pt-8 border-t border-gray-800 flex justify-between">
+            <p>© 2024 OOTD Corp.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="common.js" th:src="@{/js/common.js}"></script>
+    <script src="signUp.js" th:src="@{/js/signUp.js}"></script>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    
+    <!-- Daum 우편번호 서비스 실행 스크립트 -->
+    <script>
+        function execDaumPostcode() {
+            new daum.Postcode({
+                oncomplete: function(data) {
+                    var addr = '';
+                    var extraAddr = '';
+
+                    if (data.userSelectedType === 'R') {
+                        addr = data.roadAddress;
+                    } else {
+                        addr = data.jibunAddress;
+                    }
+
+                    if(data.userSelectedType === 'R'){
+                        if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
+                            extraAddr += data.bname;
+                        }
+                        if(data.buildingName !== '' && data.apartment === 'Y'){
+                            extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+                        }
+                        if(extraAddr !== ''){
+                            extraAddr = ' (' + extraAddr + ')';
+                        }
+                    }
+
+                    document.getElementById('zipcode').value = data.zonecode;
+                    document.getElementById("address").value = addr;
+                    document.getElementById("addressDetail").focus();
+                }
+            }).open();
+        }
+
+        // 모달 스크립트
+        function openTermsModal(type) {
+            const modal = document.getElementById('terms-modal');
+            const content = document.getElementById('terms-content');
+            const title = document.getElementById('terms-title');
+            
+            modal.classList.remove('hidden', 'flex');
+            modal.classList.add('flex');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+            
+            if(type === 'terms') {
+                title.innerText = '이용약관';
+                content.innerText = '이용약관 내용이 들어갑니다...';
+            } else if(type === 'privacy') {
+                title.innerText = '개인정보 수집 및 이용 동의';
+                content.innerText = '개인정보 수집 및 이용 동의 내용...';
+            } else if(type === 'marketing') {
+                title.innerText = '마케팅 정보 수신 동의';
+                content.innerText = '마케팅 정보 수신 동의 내용...';
+            }
+        }
+
+        function closeTermsModal() {
+            const modal = document.getElementById('terms-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }, 300);
+        }
+    </script>
+
+</body>
+</html>

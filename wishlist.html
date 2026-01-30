@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wishlist - OOTD</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="common.css" th:href="@{/css/common.css}">
+    
+    <!-- Wishlist Specific CSS -->
+    <link rel="stylesheet" href="wishlist.css" th:href="@{/css/wishlist.css}">
+</head>
+<body class="bg-white text-gray-900 min-h-screen flex flex-col">
+
+    <!-- ==================== 헤더 (공통) ==================== -->
+    <header id="main-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-[#1a1b1f] text-white shadow-md">
+        <div class="w-full border-b border-white/5 relative z-50 bg-[#1a1b1f]">
+            <div class="max-w-[1600px] mx-auto px-8 h-12 flex justify-between items-center">
+                <div class="flex items-center gap-12">
+                    <a href="home.html" class="text-xl font-black italic tracking-tighter hover:text-gray-300 transition-colors">OOTD.</a>
+                    <nav class="hidden md:flex gap-6 text-[10px] font-bold uppercase tracking-widest text-gray-300">
+                        <a href="#" class="hover:text-white transition-colors">Men</a>
+                        <a href="#" class="hover:text-white transition-colors">Women</a>
+                        <a href="#" class="hover:text-white transition-colors">Shoes</a>
+                        <a href="#" class="text-red-500 hover:text-red-400 transition-colors">Ranking</a>
+                    </nav>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button id="sticky-search-btn" onclick="openSearch()" class="text-gray-400 hover:text-white transition-colors cursor-pointer"><i data-lucide="search" width="18"></i></button>
+                    <div class="flex items-center gap-4 text-gray-400">
+                        <a th:href="@{/user/wishlist}" class="text-white relative group"><i data-lucide="heart" width="18"></i></a>
+                        <a th:href="@{/user/mypage}" href ="mypage.html" class="hover:text-white text-gray-400 transition-colors relative group"><i data-lucide="user" width="18"></i></a>
+                        <a th:href="@{/cart}" class="hover:text-white text-gray-400 transition-colors relative group"><i data-lucide="shopping-bag" width="18"></i></a>
+                    </div>
+                    <div class="w-px h-2.5 bg-gray-700"></div>
+                    <a href="#" class="flex items-center gap-1 text-indigo-400 hover:text-indigo-300 font-bold text-[10px] transition-colors"><i data-lucide="sparkles" width="12"></i> AI 피팅</a>
+                    <button class="text-[10px] font-bold border border-gray-600 px-3 py-1 rounded-full hover:bg-white hover:text-black hover:border-white transition-all text-white">LOGOUT</button>
+                </div>
+            </div>
+        </div>
+        <!-- 검색창 (공통) -->
+        <div id="header-search-row" class="w-full py-2 bg-[#1a1b1f] relative z-40 h-14">
+            <div class="max-w-4xl mx-auto px-6">
+                <div class="relative group search-container">
+                    <div class="search-box border border-gray-700/50">
+                        <div class="search-form-area">
+                            <i data-lucide="search" class="text-gray-400 w-4 h-4 mr-3 shrink-0"></i>
+                            <input type="text" id="main-search-input" class="w-full bg-transparent border-none text-xs text-white h-full focus:outline-none placeholder-gray-500" placeholder="브랜드, 상품, 프로필, 태그 등" autocomplete="off">
+                        </div>
+                        <div class="search-content-area">
+                            <div class="space-y-6">
+                                <div>
+                                    <span class="text-[10px] font-bold text-gray-500 mb-2 block uppercase tracking-wider">Recent Searches</span>
+                                    <div id="recent-search-list" class="flex flex-wrap gap-2 text-[11px] text-gray-300"></div>
+                                </div>
+                                <div class="border-t border-gray-700/50 pt-4">
+                                    <span class="text-[10px] font-bold text-gray-500 mb-2 block uppercase tracking-wider">Trending Now</span>
+                                    <ul id="trending-search-list" class="space-y-2 text-xs text-white font-medium"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== 컨텐츠 영역 ==================== -->
+    <div class="pt-[140px] max-w-4xl mx-auto w-full px-6 py-12 relative flex min-h-[800px] pb-20">
+        
+        <!-- [LEFT] 사이드바 메뉴 래퍼 -->
+        <div class="absolute right-full top-0 bottom-64 hidden xl:block">
+            <aside class="sticky top-32 mr-6 w-[140px] select-none text-left">
+                <a th:href="@{/user/mypage}" href="mypage.html"  class="cursor-pointer block text-2xl font-black mb-6 hover:opacity-70 transition-opacity">MY PAGE</a>
+                
+                <nav class="space-y-6">
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wide">Shopping Info</h3>
+                        <ul class="space-y-2 text-xs text-gray-500 font-medium">
+                            <li><a th:href="@{/user/orders}" href="orderlist.html" class="nav-link hover:text-gray-900 transition-colors">구매 내역</a></li>
+                            <li><a th:href="@{/user/wishlist}" href="wishlist.html" class="nav-link active text-black font-black hover:text-gray-900 transition-colors">관심 상품</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wide">My Info</h3>
+                        <ul class="space-y-2 text-xs text-gray-500 font-medium">
+                            <li><a th:href="@{/user/check-password}" class="nav-link hover:text-gray-900 transition-colors">로그인 정보</a></li>
+                            <li><a th:href="@{/user/profile}" class="nav-link hover:text-gray-900 transition-colors">프로필 관리</a></li>
+                            <li><a th:href="@{/user/address}" class="nav-link hover:text-gray-900 transition-colors">주소록</a></li>
+                            <li><a th:href="@{/user/custom-info}" class="nav-link hover:text-gray-900 transition-colors">나의 맞춤정보</a></li>
+                        </ul>
+                    </div>
+                </nav>
+            </aside>
+        </div>
+
+        <!-- [RIGHT] 메인 컨텐츠 -->
+        <main class="w-full flex-1 min-w-0">
+            
+            <div class="flex items-end justify-between mb-6 pb-4 border-b border-black">
+                <h2 class="text-2xl font-bold">관심 상품 <span class="text-sm font-medium text-gray-400 ml-1" id="wishlist-count" th:text="${wishlist != null ? wishlist.size() : 0}">0</span></h2>
+            </div>
+
+            <!-- 카테고리 분류 탭 -->
+            <div class="flex gap-2 mb-8 overflow-x-auto scrollbar-hide">
+                <button onclick="filterCategory('all')" class="category-btn active px-4 py-2 text-xs font-bold border border-black bg-black text-white rounded-full whitespace-nowrap transition-colors" data-category="all">전체</button>
+                <button onclick="filterCategory('outer')" class="category-btn px-4 py-2 text-xs font-medium border border-gray-200 text-gray-500 rounded-full whitespace-nowrap hover:border-black hover:text-black transition-colors" data-category="outer">아우터</button>
+                <button onclick="filterCategory('top')" class="category-btn px-4 py-2 text-xs font-medium border border-gray-200 text-gray-500 rounded-full whitespace-nowrap hover:border-black hover:text-black transition-colors" data-category="top">상의</button>
+                <button onclick="filterCategory('bottom')" class="category-btn px-4 py-2 text-xs font-medium border border-gray-200 text-gray-500 rounded-full whitespace-nowrap hover:border-black hover:text-black transition-colors" data-category="bottom">하의</button>
+                <button onclick="filterCategory('shoes')" class="category-btn px-4 py-2 text-xs font-medium border border-gray-200 text-gray-500 rounded-full whitespace-nowrap hover:border-black hover:text-black transition-colors" data-category="shoes">신발</button>
+            </div>
+
+            <!-- 상품 그리드 -->
+            <div th:if="${not #lists.isEmpty(wishlist)}" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-3 gap-y-8" id="wishlist-grid">
+                
+                <!-- 상품 카드 반복 -->
+                <div th:each="item : ${wishlist}" 
+                     th:id="'wish-item-' + ${item.id}" 
+                     th:data-category="${item.category}"
+                     class="product-card group relative cursor-pointer">
+                    
+                    <a th:href="@{/product/detail/{id}(id=${item.productId})}" class="block relative aspect-[3/4] overflow-hidden rounded bg-gray-100 mb-2">
+                        <img th:src="${item.imageUrl}" alt="Product Image" class="product-img w-full h-full object-cover">
+                        
+                        <!-- 장바구니 버튼 (오버레이) -->
+                        <button th:onclick="|addToCart(event, '${item.productId}')|" class="cart-btn-overlay absolute inset-x-0 bottom-0 bg-black/90 text-white text-[10px] font-bold py-2.5 text-center hover:bg-black z-20">
+                            장바구니 담기
+                        </button>
+                        
+                        <!-- 하트 버튼 -->
+                        <button th:onclick="|removeWishItem(event, '${item.id}')|" class="absolute bottom-2 right-2 p-1.5 rounded-full bg-white hover:bg-gray-100 shadow-sm z-30 transition-transform hover:scale-110">
+                            <i data-lucide="heart" width="14" class="fill-red-500 text-red-500"></i>
+                        </button>
+                    </a>
+
+                    <!-- 상품 정보 -->
+                    <div class="text-left">
+                        <p class="text-[10px] font-bold text-gray-900 mb-0.5 truncate" th:text="${item.brandName}"></p>
+                        <a th:href="@{/product/detail/{id}(id=${item.productId})}" class="text-[11px] text-gray-600 block truncate hover:text-black mb-1" th:text="${item.productName}"></a>
+                        
+                        <div class="flex items-center gap-1.5 text-xs">
+                            <span class="font-bold text-red-600" th:if="${item.discountRate > 0}" th:text="${item.discountRate} + '%'"></span>
+                            <span class="font-bold text-gray-900" th:text="${#numbers.formatInteger(item.price, 3, 'COMMA')}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(wishlist)}" class="py-32 flex flex-col items-center justify-center text-center">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                    <i data-lucide="heart-off" class="text-gray-400" width="32"></i>
+                </div>
+                <p class="text-sm font-bold text-gray-900 mb-1">관심 상품이 비어있습니다.</p>
+                <p class="text-xs text-gray-500 mb-6">마음에 드는 상품을 하트 버튼을 눌러 담아보세요.</p>
+                <a href="/" class="px-6 py-3 bg-black text-white text-xs font-bold rounded hover:bg-gray-800 transition-colors">
+                    쇼핑하러 가기
+                </a>
+            </div>
+
+            <!-- Pagination -->
+            <div th:if="${totalPages > 1}" class="mt-12 flex justify-center gap-2">
+                <a th:href="@{/user/wishlist(page=${currentPage - 1})}" th:if="${currentPage > 1}" class="w-8 h-8 flex items-center justify-center border border-gray-200 rounded text-xs hover:bg-gray-50"><i data-lucide="chevron-left" width="14"></i></a>
+                <th:block th:each="page : ${#numbers.sequence(1, totalPages)}">
+                    <a th:href="@{/user/wishlist(page=${page})}" 
+                       th:text="${page}"
+                       th:class="${page == currentPage ? 'w-8 h-8 flex items-center justify-center bg-black text-white text-xs font-bold rounded' : 'w-8 h-8 flex items-center justify-center border border-gray-200 text-gray-500 text-xs rounded hover:bg-gray-50'}"></a>
+                </th:block>
+                <a th:href="@{/user/wishlist(page=${currentPage + 1})}" th:if="${currentPage < totalPages}" class="w-8 h-8 flex items-center justify-center border border-gray-200 rounded text-xs hover:bg-gray-50"><i data-lucide="chevron-right" width="14"></i></a>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 공통 푸터 -->
+   <footer class="bg-[#1a1b1f] text-gray-400 py-16 text-xs mt-auto">
+        <div class="max-w-[1600px] mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
+            <div>
+                <h4 class="text-white text-xl font-black italic mb-4">OOTD.</h4>
+                <p class="leading-relaxed opacity-70">Fashion meets AI.<br>New shopping experience.</p>
+            </div>
+            <div>
+                <h5 class="text-white font-bold mb-4">SHOP</h5>
+                <ul class="space-y-2 opacity-70">
+                    <li><a href="#" class="hover:text-white">Men</a></li>
+                    <li><a href="#" class="hover:text-white">Women</a></li>
+                    <li><a href="#" class="hover:text-white">Shoes</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="text-white font-bold mb-4">HELP</h5>
+                <ul class="space-y-2 opacity-70">
+                    <li><a href="#">Customer Service</a></li>
+                    <li><a href="#">Delivery & Returns</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="text-white font-bold mb-4">SUBSCRIBE</h5>
+                <p class="mb-4 opacity-70">뉴스레터를 구독하고 할인 정보를 받아보세요.</p>
+            </div>
+        </div>
+        <div class="max-w-[1600px] mx-auto px-6 mt-12 pt-8 border-t border-gray-800 flex justify-between">
+            <p>© 2024 OOTD Corp.</p>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="common.js" th:src="@{/js/common.js}"></script>
+    <script src="wishlist.js" th:src="@{/js/wishlist.js}"></script>
+</body>
+</html>

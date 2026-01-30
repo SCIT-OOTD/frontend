@@ -1,0 +1,104 @@
+@charset "UTF-8";
+
+/* ==================== 폼 레이아웃 정렬 (간격 고정) ==================== */
+/* HTML의 space-y-* 대신 gap 속성을 사용하여 일정하고 좁은 간격 유지 */
+#signUpForm {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* 모든 입력 그룹 사이 간격을 20px로 고정 */
+}
+
+/* 각 입력 그룹 */
+#signUpForm > div {
+    display: flex;
+    flex-direction: column;
+}
+
+/* 메시지 영역 (아이디 중복 확인 결과 등) */
+.msg-box {
+    font-size: 11px;
+    margin-top: 4px;
+    height: 14px; /* 메시지가 없어도 높이를 유지하지 않으려면 auto 또는 0으로 변경 가능하나, 레이아웃 흔들림 방지 위해 고정 추천 */
+    min-height: 14px;
+}
+
+/* 메시지가 비었을 때 숨기기 (공백 제거) */
+.msg-box:empty {
+    display: none;
+}
+
+/* ==================== 기존 스타일 ==================== */
+
+/* 입력창 밑줄 효과 */
+.input-underline {
+    transition: border-color 0.2s ease;
+}
+.input-underline:focus {
+    border-bottom-color: #000;
+}
+
+/* Select 박스 화살표 커스텀 */
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0 center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 1.5rem;
+}
+
+/* 버튼 스타일 */
+.btn-black {
+    background-color: #222;
+    color: white;
+    transition: background-color 0.2s;
+}
+.btn-black:hover {
+    background-color: #000;
+}
+
+.btn-disabled {
+    background-color: #f3f4f6;
+    color: #d1d5db;
+    cursor: not-allowed;
+}
+
+.btn-outline {
+    border: 1px solid #d1d5db;
+    color: #374151;
+    transition: all 0.2s;
+}
+.btn-outline:hover {
+    border-color: #000;
+    color: #000;
+}
+
+/* 체크박스 */
+.checkbox-custom {
+    appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.25rem;
+    background-color: #fff;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+}
+.checkbox-custom:checked {
+    background-color: #000;
+    border-color: #000;
+}
+.checkbox-custom:checked::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0.35rem;
+    height: 0.6rem;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: translate(-50%, -60%) rotate(45deg);
+}
