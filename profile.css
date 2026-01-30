@@ -1,0 +1,41 @@
+ /* 좌측 메뉴 활성화 스타일 */
+        .nav-link.active {
+            color: #000;
+            font-weight: 900;
+        }
+        /* 버튼 호버 효과 미세 조정 */
+        .btn-outline-gray {
+            border: 1px solid #e5e7eb; /* gray-200 */
+            transition: all 0.2s;
+        }
+        .btn-outline-gray:hover {
+            border-color: #000;
+            color: #000;
+        }
+        /* 커스텀 체크박스 스타일 (사진 1 스타일) */
+        .checkbox-custom {
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            position: relative;
+            background-color: white;
+            transition: all 0.2s;
+        }
+        .checkbox-custom:checked {
+            background-color: black;
+            border-color: black;
+        }
+        .checkbox-custom:checked::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 0.35rem;
+            height: 0.6rem;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: translate(-50%, -60%) rotate(45deg);
+        }
